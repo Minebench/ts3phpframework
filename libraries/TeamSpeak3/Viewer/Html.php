@@ -82,6 +82,13 @@ class TeamSpeak3_Viewer_Html implements TeamSpeak3_Viewer_Interface
   protected $ftclient = null;
 
   /**
+   * Whether or not to show the itnernal id of channels, clients and groups
+   *
+   * @var boolean
+   */
+  protected $showinternalid = true;
+
+  /**
    * Stores an array of local icon IDs.
    *
    * @var array
@@ -102,9 +109,10 @@ class TeamSpeak3_Viewer_Html implements TeamSpeak3_Viewer_Interface
    * @param  string $flagpath
    * @param  string $ftclient
    * @param  string $pattern
+   * @param  boolean $showinternalid
    * @return void
    */
-  public function __construct($iconpath = "images/viewer/", $flagpath = null, $ftclient = null, $pattern = null)
+  public function __construct($iconpath = "images/viewer/", $flagpath = null, $ftclient = null, $pattern = null, $showinternalid = true)
   {
     $this->iconpath = $iconpath;
     $this->flagpath = $flagpath;
@@ -114,6 +122,8 @@ class TeamSpeak3_Viewer_Html implements TeamSpeak3_Viewer_Interface
     {
       $this->pattern = $pattern;
     }
+
+    $this->showinternalid = $showinternalid;
   }
 
   /**
@@ -291,19 +301,19 @@ class TeamSpeak3_Viewer_Html implements TeamSpeak3_Viewer_Interface
   {
     if($this->currObj instanceof TeamSpeak3_Node_Server)
     {
-      return "ID: " . $this->currObj->getId() . " | Clients: " . $this->currObj->clientCount() . "/" . $this->currObj["virtualserver_maxclients"] . " | Uptime: " . TeamSpeak3_Helper_Convert::seconds($this->currObj["virtualserver_uptime"]);
+      return ($this->showinternalid ? "ID: " . $this->currObj->getId() : "Name: " . $this->getCorpusName()) . " | Clients: " . $this->currObj->clientCount() . "/" . $this->currObj["virtualserver_maxclients"] . " | Uptime: " . TeamSpeak3_Helper_Convert::seconds($this->currObj["virtualserver_uptime"]);
     }
     elseif($this->currObj instanceof TeamSpeak3_Node_Channel && !$this->currObj->isSpacer())
     {
-      return "ID: " . $this->currObj->getId() . " | Codec: " . TeamSpeak3_Helper_Convert::codec($this->currObj["channel_codec"]) . " | Quality: " . $this->currObj["channel_codec_quality"];
+      return ($this->showinternalid ? "ID: " . $this->currObj->getId() : "Name: " . $this->getCorpusName()) . " | Codec: " . TeamSpeak3_Helper_Convert::codec($this->currObj["channel_codec"]) . " | Quality: " . $this->currObj["channel_codec_quality"];
     }
     elseif($this->currObj instanceof TeamSpeak3_Node_Client)
     {
-      return "ID: " . $this->currObj->getId() . " | Version: " . TeamSpeak3_Helper_Convert::versionShort($this->currObj["client_version"]) . " | Platform: " . $this->currObj["client_platform"];
+      return ($this->showinternalid ? "ID: " . $this->currObj->getId() : "Name: " . $this->getCorpusName()) . " | Version: " . TeamSpeak3_Helper_Convert::versionShort($this->currObj["client_version"]) . " | Platform: " . $this->currObj["client_platform"];
     }
     elseif($this->currObj instanceof TeamSpeak3_Node_Servergroup || $this->currObj instanceof TeamSpeak3_Node_Channelgroup)
     {
-      return "ID: " . $this->currObj->getId() . " | Type: " . TeamSpeak3_Helper_Convert::groupType($this->currObj["type"]) . " (" . ($this->currObj["savedb"] ? "Permanent" : "Temporary") . ")";
+      return ($this->showinternalid ? "ID: " . $this->currObj->getId() : "Name: " . $this->getCorpusName()) . " | Type: " . TeamSpeak3_Helper_Convert::groupType($this->currObj["type"]) . " (" . ($this->currObj["savedb"] ? "Permanent" : "Temporary") . ")";
     }
   }
 
